@@ -66,38 +66,8 @@ python manage.py syncdb --noinput
 
 # Configs
 
-cat << EOF > /opt/graphite/conf/carbon.conf
-[cache]
-USER = carbon
-MAX_CACHE_SIZE = inf
-MAX_CREATES_PER_MINUTE = 100
-MAX_UPDATES_PER_SECOND = 1000
-LINE_RECEIVER_INTERFACE = 0.0.0.0
-PICKLE_RECEIVER_INTERFACE = 0.0.0.0
-CACHE_QUERY_INTERFACE = 0.0.0.0
-LOG_CACHE_HITS = False
-LOG_CACHE_QUEUE_SORTS = False
-LOG_UPDATES = False
-
-[cache:1]
-LINE_RECEIVER_PORT = 2003
-PICKLE_RECEIVER_PORT = 2004
-CACHE_QUERY_PORT = 7002
-
-EOF
-
-
-cat << EOF > /opt/graphite/conf/storage-schemas.conf
-[collectd]
-pattern = ^collectd\.
-retentions = 10s:1w, 60s:1y
-
-[default]
-pattern = .*
-retentions = 60s:1y
-
-EOF
-
+cp /vagrant/templates/graphite/carbon.conf /opt/graphite/conf/carbon.conf
+cp /vagrant/templates/graphite/storage-schemas.conf /opt/graphite/conf/storage-schemas.conf
 
 # System preparations
 groupadd carbon
@@ -127,29 +97,7 @@ chown apache /opt/graphite/storage/log/webapp
 cd /opt/graphite/conf
 cp graphite.wsgi.example graphite.wsgi
 
-cat << EOF > /etc/httpd/conf.d/graphite.conf
-# WSGISocketPrefix /var/log/httpd
-# WSGIPythonHome /opt/graphite
-# WSGIPythonPath /opt/graphite:/opt/graphite/lib/python2.7/site-packages
-
-WSGIDaemonProcess graphiteweb python-path=/opt/graphite:/opt/graphite/lib/python2.7/site-packages
-WSGIProcessGroup graphiteweb
-WSGIApplicationGroup %{GLOBAL}
-WSGIImportScript /opt/graphite/conf/graphite.wsgi process-group=graphiteweb application-group=%{GLOBAL}
-WSGIScriptAlias / /opt/graphite/conf/graphite.wsgi
-
-<VirtualHost *:80>
-  # wsgi script and permissions to read it
-  #WSGIDaemonProcess sampleapp python-path=/opt/graphite/webapp:/opt/graphite/lib/python2.7/site-packages
-  #WSGIProcessGroup sampleapp
-  # WSGISocketPrefix /opt/graphite/storage
-  WSGIScriptAlias / /opt/graphite/conf/graphite.wsgi
-  <Directory /opt/graphite/conf>
-    # Require all granted
-  </Directory>
-</VirtualHost>
-
-EOF
+cp /vagrant/templates/httpd/graphite.conf /etc/httpd/conf.d/graphite.conf
 
 cd /opt/src
 git clone https://github.com/GrahamDumpleton/mod_wsgi
