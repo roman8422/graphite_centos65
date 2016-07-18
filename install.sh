@@ -105,6 +105,7 @@ useradd -c "Carbon user" -g carbon -s /bin/false carbon
 
 chmod 775 /opt/graphite/storage
 chown apache:carbon /opt/graphite/storage
+chown apache:apache /opt/graphite/storage/graphite.db
 chown -R carbon /opt/graphite/storage/whisper
 mkdir -p /opt/graphite/storage/log/carbon-{cache,relay,aggregator}
 chown -R carbon:carbon /opt/graphite/storage/log
@@ -161,5 +162,7 @@ make install
 mkdir -p /opt/usr/lib64/httpd/modules/
 mv /usr/lib64/httpd/modules/mod_wsgi.so /opt/usr/lib64/httpd/modules/
 echo "LoadModule wsgi_module /opt/usr/lib64/httpd/modules/mod_wsgi.so" > /etc/httpd/conf.d/wsgi.conf 
+
+pip uninstall -y whitenoise
 
 /etc/init.d/httpd restart
