@@ -80,8 +80,6 @@ chown -R carbon /opt/graphite/storage/whisper
 mkdir -p /opt/graphite/storage/log/carbon-{cache,relay,aggregator}
 chown -R carbon:carbon /opt/graphite/storage/log
 
-carbon-cache.py --instance=1 start
-
 # for i in `seq 8`; do sudo -E carbon-cache.py --instance=${i} start; done
 # for i in `seq 8`; do sudo -E carbon-cache.py --instance=${i} stop; done
 
@@ -113,4 +111,6 @@ echo "LoadModule wsgi_module /opt/usr/lib64/httpd/modules/mod_wsgi.so" > /etc/ht
 
 pip uninstall -y whitenoise
 
+# Start everything
 /etc/init.d/httpd restart
+/opt/graphite/bin/carbon-cache.py --instance=1 start
